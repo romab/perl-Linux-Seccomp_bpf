@@ -12,8 +12,6 @@ Example:
 
 
 ```perl
-class {'::mongodb::client':}
-
 use strict;
 use Linux::Seccomp_bpf;
 
