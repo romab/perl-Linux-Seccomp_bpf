@@ -1,0 +1,6 @@
+Revision history for Perl extension Linux::Seccomp_bpf.
+
+0.01  Wed Oct 21 15:39:35 2015
+	- original version; created by h2xs 1.23 with options
+		-A -n Linux::Seccomp_bpf
+
