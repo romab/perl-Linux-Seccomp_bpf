@@ -25,6 +25,8 @@ print "foo\n";
 print "bar\n";
 ```
 
+## limitations
+Module currently only allows for restriction of syscalls, not arguments.
 
 ## credits
 special thanks to mue for hacking on this.
