@@ -25,7 +25,10 @@ DEPENDENCIES
 
 This module requires these other modules and libraries:
 
-  blah blah blah
+  libseccomp, as well as libseccomp-devel.
+  
+   on rhel-based systems, these can be installed with
+   yum intall libseccomp-devel libseccomp
 
 COPYRIGHT AND LICENCE
 
