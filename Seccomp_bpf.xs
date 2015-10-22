@@ -5,8 +5,9 @@
 #include "ppport.h"
 
 
-MODULE = Linux::Seccomp_bpf		PACKAGE = Linux::Seccomp_bpf		
+MODULE = Linux::Seccomp_bpf		PACKAGE = Linux::Seccomp_bpf
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
@@ -19,27 +20,30 @@ int
 scmp_bpf_is_available()
 CODE:
     int r;
-    RETVAL=1;
     r = prctl(PR_GET_SECCOMP, 0, 0, 0, 0);
     if (r < 0) {
+        RETVAL=0;
         switch (errno) {
             case ENOSYS:
                 fprintf(stderr, "seccomp not available: Needs at least kernel 2.6.23\n");
-                RETVAL=0;
+                break;
             case EINVAL:
-                fprintf(stderr, "SECCOMP_FILTER is not available.\nYour kernel needs\nCONFIG_HAVE_ARCH_SECCOMP_FILTER=y\nCONFIG_SECCOMP_FILTER=y\nCONFIG_SECCOMP=y\n");
-                RETVAL=0;
+                fprintf(stderr, "SECCOMP_FILTER is not available.\nYour kernel needs\n\
+                    CONFIG_HAVE_ARCH_SECCOMP_FILTER=y\nCONFIG_SECCOMP_FILTER=y\nCONFIG_SECCOMP=y\n");
+                break;
             default:
                 fprintf(stderr, "unknown PR_GET_SECCOMP error: %s\n",
                         strerror(errno));
-                RETVAL=0;
-        }    
+        }
+    }
+    else {
+        RETVAL=1;
     }
 OUTPUT:
-    RETVAL 
+    RETVAL
 
 void
-inl_scmp_bpf_install_filter(SV* syscalls) 
+inl_scmp_bpf_install_filter(SV* syscalls)
 INIT:
      I32 numcalls = 0;
 
@@ -52,25 +56,34 @@ INIT:
 CODE:
     scmp_filter_ctx ctx;
     int i;
+    int r;
 
-    int r = -1;
-    prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
+    r = prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
+    if (r < 0) {
+        perror("failed to set PR_ST_NO_NEW_PRIVS:");
+        exit(errno);
+    }
     // libseccomp initialization
     ctx = seccomp_init(SCMP_ACT_TRAP);
-    if (ctx == NULL)
-        printf("FUUUUUUBAR");
+    if (ctx == NULL) {
+        fprintf(stderr, "seccomp_init failed\n");
+        exit(-1);
+    }
 
     for (i = 0; i < numcalls ; i++) {
         STRLEN l;
         char * h = SvPV(*av_fetch((AV *)SvRV(syscalls), i, 0), l);
         int num = atoi(h);
-    	r=seccomp_rule_add(ctx, SCMP_ACT_ALLOW, num, 0);
-        if ( r < 0 )  {
-            printf ("Failed to add syscall %d\n", r);
-        } 
+        r = seccomp_rule_add(ctx, SCMP_ACT_ALLOW, num, 0);
+        if (r < 0)  {
+            fprintf(stderr, "Failed to add syscall %d\n", r);
+        }
     }
-   
-    seccomp_load(ctx);
+
+    r = seccomp_load(ctx);
+    if (r != 0) {
+        fprintf(stderr, "seccomp_load failed with exit code %d\n", r);
+        exit(r);
+    }
+
     seccomp_release(ctx);
-
-
