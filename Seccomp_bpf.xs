@@ -72,8 +72,24 @@ CODE:
 
     for (i = 0; i < numcalls ; i++) {
         STRLEN l;
-        char * h = SvPV(*av_fetch((AV *)SvRV(syscalls), i, 0), l);
-        int num = atoi(h);
+        char *h = SvPV(*av_fetch((AV *)SvRV(syscalls), i, 0), l);
+        // We do not want to use atoi(), why does linux not have strtonum :(
+        char *ep;
+        errno = 0;
+        unsigned long num = strtoul(h, &ep, 10);
+        if (h[0] == '\0' || *ep != '\0') {
+            fprintf(stderr, "syscall not a number: %s\n", h);
+            exit(-2);
+        }
+        if (errno == ERANGE && num == ULONG_MAX) {
+            fprintf(stderr, "syscall out of unsigned long range: %s\n", h);
+            exit(-3);
+        }
+        if (num > 2048) {
+            fprintf(stderr, "syscall number not sane: %s\n", h);
+            exit(-3);
+        }
+
         r = seccomp_rule_add(ctx, SCMP_ACT_ALLOW, num, 0);
         if (r < 0)  {
             fprintf(stderr, "Failed to add syscall %d\n", r);
