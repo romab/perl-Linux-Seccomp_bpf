@@ -49,7 +49,14 @@ sub scmp_bpf_install_filter {
        if ($call !~ /^SYS_/ ) {
             $s = "SYS_" . $call;
        }
-       my $number = &{\&{$s}}();
+       my $number;
+       eval {
+           $number = &{\&{$s}}();
+       };
+       if ($@) {
+           printf("$s not a valid syscall\n");
+           exit(2);
+       }
        push(@syscall_no, $number);
     }
     return Linux::Seccomp_bpf::inl_scmp_bpf_install_filter(\@syscall_no);
