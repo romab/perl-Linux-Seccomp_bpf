@@ -14,7 +14,6 @@ MODULE = Linux::Seccomp_bpf		PACKAGE = Linux::Seccomp_bpf
 #include <sys/prctl.h>
 #include <linux/seccomp.h>
 #include <seccomp.h>
-#include "seccomp-bpf.h"
 
 int
 scmp_bpf_is_available()
