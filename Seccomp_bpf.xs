@@ -44,11 +44,11 @@ OUTPUT:
 void
 inl_scmp_bpf_install_filter(SV* syscalls)
 INIT:
-     I32 numcalls = 0;
+     I32 last_num_call_idx = 0;
 
      SvGETMAGIC(syscalls);
      if ((!SvROK(syscalls)) || (SvTYPE(SvRV(syscalls)) != SVt_PVAV)
-       || ((numcalls = av_len((AV *)SvRV(syscalls))) < 0))
+       || ((last_num_call_idx = av_len((AV *)SvRV(syscalls))) < 0))
      {
         XSRETURN_UNDEF;
      }
@@ -69,7 +69,7 @@ CODE:
         exit(-1);
     }
 
-    for (i = 0; i < numcalls ; i++) {
+    for (i = 0; i <= last_num_call_idx ; i++) {
         STRLEN l;
         char *h = SvPV(*av_fetch((AV *)SvRV(syscalls), i, 0), l);
         // We do not want to use atoi(), why does linux not have strtonum :(
