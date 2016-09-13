@@ -1,5 +1,5 @@
 Name:           perl-Linux-Seccomp
-Version:        0.1
+Version:        0.3
 Release:        1%{?dist}
 Summary:        Filter syscalls via seccomp
 License:        CHECK(Distributable)

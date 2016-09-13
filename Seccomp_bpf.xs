@@ -63,7 +63,7 @@ CODE:
         exit(errno);
     }
     // libseccomp initialization
-    ctx = seccomp_init(SCMP_ACT_TRAP);
+    ctx = seccomp_init(SCMP_ACT_KILL);
     if (ctx == NULL) {
         fprintf(stderr, "seccomp_init failed\n");
         exit(-1);
