@@ -8,6 +8,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      x86_64
 BuildRequires:  libseccomp
 BuildRequires:  libseccomp-devel
+BuildRequires:  perl-Test-Simple
 Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires:       libseccomp
 
